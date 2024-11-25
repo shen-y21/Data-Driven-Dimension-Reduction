@@ -15,30 +15,34 @@ for data_set_name = ["cement", "steelpowder", "steelmaking"]
 
     for NOFMODELS = 1:3
 
-        % Load parameters of the trained model
-        load("results/data_" + data_set_name + NOFMODELS + "ALs.mat", "result");
+        for BATCH_SIZE = 1 : 4
 
-        % Problem parameters
-        P_max_i_val = result.P_max_i(end, :); % Aggregated power upper limit
-        P_min_i_val = result.P_min_i(end, :);
-        E_min_i_val = result.E_min_i(end, :);
-        E_max_i_val = result.E_max_i(end, :);
+            % Load parameters of the trained model
+            load("results/data_" + data_set_name + NOFMODELS + "ALs_" + BATCH_SIZE + "batch.mat", "result");
 
-        E_reduced_constraints = [];
-        
-        for idx_day = 1:10
-            % Read price information for the day
-            price_e = Price_days_cv(:, idx_day);
+            % Problem parameters
+            P_max_i_val = result.P_max_i(end, :); % Aggregated power upper limit
+            P_min_i_val = result.P_min_i(end, :);
+            E_min_i_val = result.E_min_i(end, :);
+            E_max_i_val = result.E_max_i(end, :);
 
-            % Original problem
-            primal_problem;
+            E_reduced_constraints = [];
 
-            % Record results
-            E_reduced_constraints = [E_reduced_constraints, p_val * ones(NOFMODELS, 1)];
+            for idx_day = 1:10
+                % Read price information for the day
+                price_e = Price_days_cv(:, idx_day);
+
+                % Original problem
+                primal_problem;
+
+                % Record results
+                E_reduced_constraints = [E_reduced_constraints, p_val * ones(NOFMODELS, 1)];
+
+            end
+
+            save("results/data_rc_" + data_set_name + NOFMODELS + "ALs.mat", "E_reduced_constraints");
 
         end
-
-        save("results/data_rc_" + data_set_name + NOFMODELS + "ALs.mat", "E_reduced_constraints");
 
     end
 

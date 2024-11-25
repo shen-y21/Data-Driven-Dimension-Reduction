@@ -17,60 +17,65 @@ max_itr = 100;
 delta_t = 1;
 % Number of intervals
 NOFINTERVALS = 24;
-% Batch size, the number of days used in each iteration
-BATCH_SIZE = 2;
+
 
 % Differentiate models based on the number of transferable loads in the surrogate model
 for NOFMODELS = 1:3
 
-    % Variable naming and initialization
-    add_varDef_and_initVal;
+    for BATCH_SIZE = 1 : 4% Batch size, the number of days used in each iteration
 
-    % Inverse optimization iterations
-    for idx_itr = 0:max_itr
-        % Solve the inverse problem, randomly using data from batch_size days
-        idx_days = randi([1, data_set.NOFTRAIN], 1, BATCH_SIZE);
+        yalmip('clear');
+        
+        % Variable naming and initialization
+        add_varDef_and_initVal;
 
-        % Read price information and electricity meter data (MW) for this day
-        price_e = Price_days_train(:, idx_days);
-        e_true = E_primal_days_train(:, idx_days);
+        % Inverse optimization iterations
+        for idx_itr = 0:max_itr
+            % Solve the inverse problem, randomly using data from batch_size days
+            idx_days = randi([1, data_set.NOFTRAIN], 1, BATCH_SIZE);
 
-        % Solve the inverse problem to update val
-        inverse_optimization;
+            % Read price information and electricity meter data (MW) for this day
+            price_e = Price_days_train(:, idx_days);
+            e_true = E_primal_days_train(:, idx_days);
 
-        % Learning rate, adaptively updated when the number of iterations is greater than 40
-        alpha = 0.9;
-        if idx_itr > 40
-            alpha = 1 / (idx_itr - 40)^0.5;
+            % Solve the inverse problem to update val
+            tic;
+            inverse_optimization;
+            result.time = [result.time; toc];
+
+            % Learning rate, adaptively updated when the number of iterations is greater than 40
+            alpha = 0.9;
+            if idx_itr > 40
+                alpha = 1 / (idx_itr - 40)^0.5;
+            end
+
+            % Update surrogate model parameters and initial values
+            P_max_i_val = (1 - alpha) * P_max_i_val + alpha * value(P_max_i);
+            assign(P_max_i, P_max_i_val);
+            P_min_i_val = (1 - alpha) * P_min_i_val + alpha * value(P_min_i);
+            assign(P_min_i, P_min_i_val);
+            E_max_i_val = (1 - alpha) * E_max_i_val + alpha * value(E_max_i);
+            assign(E_max_i, E_max_i_val);
+            E_min_i_val = (1 - alpha) * E_min_i_val + alpha * value(E_min_i);
+            assign(E_min_i, E_min_i_val);
+
+            % Record the iteration process
+            result.J_theta = [result.J_theta; value(J_theta)];
+            result.P_max_i = [result.P_max_i; P_max_i_val];
+            result.P_min_i = [result.P_min_i; P_min_i_val];
+            result.E_max_i = [result.E_max_i; E_max_i_val];
+            result.E_min_i = [result.E_min_i; E_min_i_val];
+
+            % Convergence criterion: change in the loss function over the past NOFDAYS period
+            err = 1e-3;
+            if idx_itr > data_set.NOFTRAIN && ...
+                    mean(abs(result.J_theta(end - data_set.NOFTRAIN + 1:end))) < err
+                break;
+            end
         end
 
-        % Update surrogate model parameters and initial values
-        P_max_i_val = (1 - alpha) * P_max_i_val + alpha * value(P_max_i);
-        assign(P_max_i, P_max_i_val);
-        P_min_i_val = (1 - alpha) * P_min_i_val + alpha * value(P_min_i);
-        assign(P_min_i, P_min_i_val);
-        E_max_i_val = (1 - alpha) * E_max_i_val + alpha * value(E_max_i);
-        assign(E_max_i, E_max_i_val);
-        E_min_i_val = (1 - alpha) * E_min_i_val + alpha * value(E_min_i);
-        assign(E_min_i, E_min_i_val);
+        save("results/data_" + data_set_name + NOFMODELS + "ALs_" + BATCH_SIZE + "batch.mat", "result");
 
-        % Record the iteration process
-        result.J_theta = [result.J_theta; value(J_theta)];
-        result.P_max_i = [result.P_max_i; P_max_i_val];
-        result.P_min_i = [result.P_min_i; P_min_i_val];
-        result.E_max_i = [result.E_max_i; E_max_i_val];
-        result.E_min_i = [result.E_min_i; E_min_i_val];
-
-        % Convergence criterion: change in the loss function over the past NOFDAYS period
-        err = 1e-3;
-        if idx_itr > data_set.NOFTRAIN && ...
-                mean(abs(result.J_theta(end - data_set.NOFTRAIN + 1:end))) < err
-            break;
-        end
     end
-
-    save("results/data_" + data_set_name + NOFMODELS + "ALs.mat", "result");
-
-    yalmip('clear');
 
 end

@@ -43,3 +43,5 @@ result.P_min_i = [];
 result.E_min_i = [];
 result.E_max_i = [];
 result.J_theta = [];
+% 记录每次迭代的计算时间
+result.time = [];

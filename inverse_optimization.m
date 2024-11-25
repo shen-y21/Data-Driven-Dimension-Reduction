@@ -25,7 +25,7 @@ Constraints = [Constraints, mu_p_min_ti >= 0];
 Constraints = [Constraints, mu_p_max_ti >= 0];
 
 % Complementary slackness (Fortuny-Amat transformation)
-M = 1e4;
+M = 1e3;
 % P_max
 Constraints = [Constraints, -p_ti + repmat(P_max_i, NOFINTERVALS, 1, BATCH_SIZE) <= M * z_p_max_ti];
 Constraints = [Constraints, mu_p_max_ti <= M * (1 - z_p_max_ti)];
@@ -54,10 +54,10 @@ for idx = 1:NOFMODELS - 1
 end
 
 % Dual variable constraints, for avoiding numerical issues
-Constraints = [Constraints, mu_p_min_ti <= M];
-Constraints = [Constraints, mu_p_max_ti <= M];
-Constraints = [Constraints, mu_e_min_i <= M];
-Constraints = [Constraints, mu_e_max_i <= M];
+Constraints = [Constraints, mu_p_min_ti <= M * 0.5];
+Constraints = [Constraints, mu_p_max_ti <= M * 0.5];
+Constraints = [Constraints, mu_e_min_i <= M * 0.5];
+Constraints = [Constraints, mu_e_max_i <= M * 0.5];
 
 %% Inverse Problem Objective Function
 % Loss function: fitting degree of historical energy consumption data
@@ -77,13 +77,13 @@ Constraints = [Constraints, mu_e_max_i <= M];
 %
 % 4. norm(...)^2：
 %    - norm()计算的是Frobenius范数（默认情况下）
-%    - 相当于将所有误差平方后求和再开根号，最后再平方
-%    - 即：J_θ = (√∑(预测值-真实值)²)²
+%    - 相当于将所有误差平方后求和再开根号
+%    - 即：J_θ = √∑(预测值-真实值)²
 %
 % 这是一个典型的最小二乘（least squares）目标函数，用于衡量预测值与真实值之间的整体偏差程度
 error = reshape(reshape(sum(p_ti, 2), NOFINTERVALS, BATCH_SIZE, 1) - e_true, ...
     NOFINTERVALS * BATCH_SIZE, 1);
-J_theta = norm(error)^2;
+J_theta = sum(error.^2);
 
 %% Solve
 
