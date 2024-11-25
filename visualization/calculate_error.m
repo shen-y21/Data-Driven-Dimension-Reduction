@@ -1,4 +1,4 @@
-%% Calculate the error between the optimal load curve under the identified parameters 
+%% Calculate the error between the optimal load curve under the identified parameters
 % and the results based on the original constraints given the electricity price.
 % The results of Table I
 
@@ -14,16 +14,16 @@ for name_idx = 1 : 3
     % Load data: price and electricity meter data for past time periods
     load("../data_set/dataset_" + data_set_name + ".mat");
 
-        % Results of the trained model
-        load("../results/data_rc_" + data_set_name + "_SALs.mat", "E_reduced_constraints");
+    % Results of the simple models
+    load("../results/data_rc_" + data_set_name + "_SALs.mat", "E_reduced_constraints");
 
-        % Calculate error (mse)
-        mse = mean(mean(abs(E_reduced_constraints - E_primal_days_cv).^2));
+    % Calculate error (mse)
+    mse = mean(mean(abs(E_reduced_constraints - E_primal_days_cv).^2));
 
-        % Calculate error (nrmse)
-        nrmse =  sqrt(mse) / max(E_primal_days_cv(:, 1));
-        % Record error
-        total_table(1, name_idx) = nrmse;
+    % Calculate error (nrmse)
+    nrmse =  sqrt(mse) / max(E_primal_days_cv(:, 1));
+    % Record error
+    total_table(1, name_idx) = nrmse;
 
 end
 
