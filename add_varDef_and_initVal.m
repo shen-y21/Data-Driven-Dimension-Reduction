@@ -1,10 +1,5 @@
 %% Setting up variables for inverse optimization, this program needs to be separated from constraint construction, so that different constraints can be built repeatedly
 
-% Number of intervals
-NOFINTERVALS = 24;
-% Length of each interval
-delta_t = 1;
-
 %% Variable Setup
 
 % Surrogate model parameters
@@ -13,20 +8,20 @@ P_min_i = sdpvar(1, NOFMODELS, 'full'); % Aggregate power lower limit
 E_min_i = sdpvar(1, NOFMODELS, 'full'); % Aggregate energy upper limit
 E_max_i = sdpvar(1, NOFMODELS, 'full'); % Aggregate energy lower limit
 
-% Original problem variables: Energy (kW)
-p_ti = sdpvar(NOFINTERVALS, NOFMODELS, 'full'); % Hourly energy consumption MWh
+% Original problem variables: Energy (kW), NOFINTERVALS * NOFMODELS * BATCH_SIZE
+p_ti = sdpvar(NOFINTERVALS, NOFMODELS, BATCH_SIZE, 'full'); % Hourly energy consumption MWh
 
 % Auxiliary variables
-z_p_max_ti = binvar(NOFINTERVALS, NOFMODELS, 'full'); % Power limit integer variables
-z_p_min_ti = binvar(NOFINTERVALS, NOFMODELS, 'full'); % Power limit integer variables
-z_e_max_i = binvar(1, NOFMODELS, 'full'); % Energy upper limit integer variables
-z_e_min_i = binvar(1, NOFMODELS, 'full'); % Energy lower limit integer variables
+z_p_max_ti = binvar(NOFINTERVALS, NOFMODELS, BATCH_SIZE, 'full'); % Power limit integer variables
+z_p_min_ti = binvar(NOFINTERVALS, NOFMODELS, BATCH_SIZE, 'full'); % Power limit integer variables
+z_e_max_i = binvar(1, NOFMODELS, BATCH_SIZE, 'full'); % Energy upper limit integer variables
+z_e_min_i = binvar(1, NOFMODELS, BATCH_SIZE, 'full'); % Energy lower limit integer variables
 
 % Dual variables
-mu_p_min_ti = sdpvar(NOFINTERVALS, NOFMODELS, 'full');
-mu_p_max_ti = sdpvar(NOFINTERVALS, NOFMODELS, 'full');
-mu_e_min_i = sdpvar(1, NOFMODELS, 'full');
-mu_e_max_i = sdpvar(1, NOFMODELS, 1, 'full');
+mu_p_min_ti = sdpvar(NOFINTERVALS, NOFMODELS, BATCH_SIZE, 'full');
+mu_p_max_ti = sdpvar(NOFINTERVALS, NOFMODELS, BATCH_SIZE, 'full');
+mu_e_min_i = sdpvar(1, NOFMODELS, BATCH_SIZE, 'full');
+mu_e_max_i = sdpvar(1, NOFMODELS, BATCH_SIZE, 'full');
 
 %% Iterative parameter solving
 

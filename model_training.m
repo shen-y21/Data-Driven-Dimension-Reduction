@@ -15,6 +15,10 @@ TimeLimit = 120; % Maximum solving time per iteration
 max_itr = 100;
 % Length of time interval
 delta_t = 1;
+% Number of intervals
+NOFINTERVALS = 24;
+% Batch size, the number of days used in each iteration
+BATCH_SIZE = 2;
 
 % Differentiate models based on the number of transferable loads in the surrogate model
 for NOFMODELS = 1:3
@@ -24,12 +28,12 @@ for NOFMODELS = 1:3
 
     % Inverse optimization iterations
     for idx_itr = 0:max_itr
-        % Solve the inverse problem, randomly using data from day d
-        idx_day = randi([1, data_set.NOFTRAIN], 1, 1);
+        % Solve the inverse problem, randomly using data from batch_size days
+        idx_days = randi([1, data_set.NOFTRAIN], 1, BATCH_SIZE);
 
         % Read price information and electricity meter data (MW) for this day
-        price_e = Price_days_train(:, idx_day);
-        e_true = E_primal_days_train(:, idx_day);
+        price_e = Price_days_train(:, idx_days);
+        e_true = E_primal_days_train(:, idx_days);
 
         % Solve the inverse problem to update val
         inverse_optimization;
