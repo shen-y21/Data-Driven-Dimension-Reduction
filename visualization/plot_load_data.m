@@ -16,10 +16,11 @@ hold on;
 
 end
 
+fontsize = 25;
 % Set axis labels
-x1 = xlabel('Hour','FontSize',13.5,'FontName', 'Times New Roman','FontWeight','bold');
-y1 = ylabel('Day','FontSize',13.5,'FontName', 'Times New Roman','FontWeight','bold');
-z1 = zlabel('Load (MW)','FontSize',13.5,'FontName', 'Times New Roman','FontWeight','bold');
+x1 = xlabel('Hour','FontSize',fontsize,'FontName', 'Times New Roman','FontWeight','bold');
+y1 = ylabel('Day','FontSize',fontsize,'FontName', 'Times New Roman','FontWeight','bold');
+z1 = zlabel('Load (MW)','FontSize',fontsize,'FontName', 'Times New Roman','FontWeight','bold');
 % Figure size
 figureUnits = 'centimeters';
 figureWidth = 20;
@@ -27,7 +28,14 @@ figureHeight = figureWidth * 3 / 4;
 set(gcf, 'Units', figureUnits, 'Position', [10 10 figureWidth figureHeight]);
 
 ax.FontName = 'Times New Roman';
+% ax.FontSize = fontsize;
 % set(gcf, 'PaperSize', [18, 8]);
+
+% 设置坐标轴刻度字体大小
+set(gca, 'FontSize', fontsize);
+
+% y1 刻度化为整数
+set(gca, 'YTick', 1:5);
 
 % 设置坐标轴
 axis tight;
