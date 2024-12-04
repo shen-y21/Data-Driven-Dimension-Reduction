@@ -26,10 +26,15 @@ mu_e_max_i = sdpvar(1, NOFMODELS, BATCH_SIZE, 'full');
 %% Iterative parameter solving
 
 % Initialization
-P_max_i_val = ones(1, NOFMODELS) * max(max(E_primal_days_train)) / NOFMODELS;
-P_min_i_val = ones(1, NOFMODELS) * min(min(E_primal_days_train)) / NOFMODELS;
+% P_max_i_val = ones(1, NOFMODELS) * max(max(E_primal_days_train)) / NOFMODELS;
+% P_min_i_val = ones(1, NOFMODELS) * min(min(E_primal_days_train)) / NOFMODELS;
+% E_max_i_val = zeros(1, NOFMODELS);
+% E_min_i_val = ones(1, NOFMODELS) * sum(E_primal_days_train(:, 1)) / NOFMODELS;
+% set as 0
+P_max_i_val = zeros(1, NOFMODELS) * max(max(E_primal_days_train)) / NOFMODELS;
+P_min_i_val = zeros(1, NOFMODELS) * min(min(E_primal_days_train)) / NOFMODELS;
 E_max_i_val = zeros(1, NOFMODELS);
-E_min_i_val = ones(1, NOFMODELS) * sum(E_primal_days_train(:, 1)) / NOFMODELS;
+E_min_i_val = zeros(1, NOFMODELS) * sum(E_primal_days_train(:, 1)) / NOFMODELS;
 
 % Setting variable initial values
 assign(P_max_i, P_max_i_val);

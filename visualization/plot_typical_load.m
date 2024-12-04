@@ -59,11 +59,10 @@ ax.YLim = [0, 300];
 % Font size
 ax.FontSize = 13.5;
 
-% Set ticks
+% Set ticks and make x-axis labels horizontal
 ax.XTick = [1:24];
-
-% Adjust labels
-ax.XTickLabel =  {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24'};
+ax.XTickLabel = {'1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24'};
+ax.XTickLabelRotation = 0;  % 设置x轴标签水平显示
 ax.FontName = 'Times New Roman';
 set(gcf, 'PaperSize', [18, 8]);
 

@@ -12,7 +12,7 @@ data_set.NOFTRAIN = 21;
 % Solution settings
 TimeLimit = 120; % Maximum solving time per iteration
 % Maximum number of iterations
-max_itr = 100;
+max_itr = 40;
 % Length of time interval
 delta_t = 1;
 % Number of intervals
@@ -44,9 +44,9 @@ for NOFMODELS = 1:3
             result.time = [result.time; toc];
 
             % Learning rate, adaptively updated when the number of iterations is greater than 40
-            alpha = 0.9;
-            if idx_itr > 40
-                alpha = 1 / (idx_itr - 40)^0.5;
+            alpha = 0.05;
+            if idx_itr > 20
+                alpha = 0.05 * 1 / (idx_itr - 20)^0.5;
             end
 
             % Update surrogate model parameters and initial values

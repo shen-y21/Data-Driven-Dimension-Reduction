@@ -30,11 +30,11 @@ end
 
 % 设置左侧子图属性
 xlabel('Batch Size', 'FontSize', 8);
-ylabel('ALs', 'FontSize', 8);
+ylabel('NAL', 'FontSize', 8);
 zlabel('Time (s)', 'FontSize', 8);
 set(gca, 'XTick', 1:4, 'XTickLabel', {'1', '2', '3', '4'}, 'FontSize', 8);
 set(gca, 'YTick', 1:3, 'YTickLabel', {'1', '2', '3'}, 'FontSize', 8);
-zlim([0 10000]);  % 限制训练时间显示范围
+zlim([0 4800]);  % 限制训练时间显示范围
 view(45, 30);
 grid on;
 
@@ -65,7 +65,7 @@ end
 
 % 设置右侧子图属性
 xlabel('Batch Size', 'FontSize', 8);
-ylabel('ALs', 'FontSize', 8);
+ylabel('NAL', 'FontSize', 8);
 zlabel('NRMSE (%)', 'FontSize', 8);
 set(gca, 'XTick', 1:4, 'XTickLabel', {'1', '2', '3', '4'}, 'FontSize', 8);
 set(gca, 'YTick', 1:3, 'YTickLabel', {'1', '2', '3'}, 'FontSize', 8);
