@@ -16,6 +16,9 @@ Contains analysis outputs and model performance data generated using the dataset
 ### Visualization (`visualization/`)
 Tools and scripts for analyzing and visualizing results.
 
+### OVB (`OVB/`)
+Contains the reproduced OVB methods. Please refer to the documentation inside for detailed explanations.
+
 ## Core Components
 
 ### Training Pipeline
@@ -51,14 +54,13 @@ Tools and scripts for analyzing and visualizing results.
    - Provides baseline comparison
 
 ## Getting Started
-1. Ensure all dependencies are installed
+1. Ensure all dependencies are installed:
+   - Gurobi
+   - YALMIP
 2. Place your data in the `data_set` folder
 3. Run `main_training.m` to begin the training process
 4. View results in the `results` folder
 5. Use visualization tools to analyze outputs
-
-## Contact
-For questions, suggestions, or collaborations, please contact us.
 
 ---
 
@@ -79,6 +81,9 @@ For questions, suggestions, or collaborations, please contact us.
 
 ### 可视化 (`visualization/`)
 用于分析和可视化结果的工具和脚本。
+
+### OVB (`OVB/`)
+包含复现的OVB方法。详细说明请参见内部文档。
 
 ## 核心组件
 
@@ -115,14 +120,13 @@ For questions, suggestions, or collaborations, please contact us.
    - 提供基准比较
 
 ## 开始使用
-1. 确保安装所有依赖项
+1. 确保安装所有依赖项：
+   - Gurobi
+   - YALMIP
 2. 将数据放入`data_set`文件夹
 3. 运行`main_training.m`开始训练过程
 4. 在`results`文件夹中查看结果
 5. 使用可视化工具分析输出
-
-## 联系方式
-如有问题、建议或合作意向，请与我们联系。
 
 ---
 
