@@ -1,9 +1,5 @@
-% 创建适合IEEE单栏格式的图形
-close;
-figureUnits = 'inches';
-figureWidth = 3.5;  % 压缩宽度
-figureHeight = 1.5;  % 高度保持不变
-figure('Units', figureUnits, 'Position', [2 2 figureWidth figureHeight]);
+% 创建适合IEEE双栏论文的图形
+figure('Units', 'inches', 'Position', [1, 1, 4.5, 2.6], 'Renderer', 'painters');  % 增加高度以适应完整显示
 
 % 定义颜色和线型组合
 colors = {'r', 'g'};  % ALs=1,2
@@ -14,7 +10,7 @@ data_set_name = "steelpowder";
 
 % 创建两个子图
 for subplot_idx = 1:2
-    subplot(1, 2, subplot_idx);  % 修改为1行2列
+    subplot(1, 2, subplot_idx);  
     hold on;
     legend_entries = {};
     
@@ -33,7 +29,7 @@ for subplot_idx = 1:2
                 data = result.E_max_i(1:min(max_iterations, length(result.E_max_i)), 1);
             end
             
-            % 计算移动平均
+            % 计算移动平���
             smooth_data = movmean(data, window_size);
             
             % 绘制曲线
@@ -45,32 +41,38 @@ for subplot_idx = 1:2
         end
     end
     
-    % 设置子图属性
-    xlabel('Iteration', 'FontSize', 5, 'Rotation', 0);
+    % 统一设置子图属性
+    xlabel('Iteration', 'FontSize', 8);
     if subplot_idx == 1
-        ylabel('P^{max}', 'FontSize', 5, 'Rotation', 90);
-        ylim([0 250]);  % 设置P_max的y轴范围
+        ylabel('P^{max}', 'FontSize', 8);
+        ylim([0 250]);  
     else
-        ylabel('E^{max}', 'FontSize', 5, 'Rotation', 90);
-        ylim([0 4000]);  % 设置E_max的y轴范围 
+        ylabel('E^{max}', 'FontSize', 8);
+        ylim([0 4000]);  
     end
     grid on;
     set(gca, 'FontSize', 8);
+    set(gca, 'XTick', 0:10:40, 'XTickLabel', {'0','10','20','30','40'});
 end
 
-% 在图形上方添加图例
-h = legend(legend_entries, 'FontSize', 5.5, ...
+% 添加共同的图例
+h = legend(legend_entries, 'Orientation', 'horizontal', ...
     'Position', [0.25 0.95 0.5 0.05], ...
-    'Interpreter', 'none', 'NumColumns', 3);
+    'NumColumns', 3, ...
+    'FontSize', 8, 'Interpreter', 'none');
 
-% 调整图形尺寸和保存
+% 调整图形尺寸和纸张大小
+figureUnits = 'inches';  
+figureWidth = 4.5;       % IEEE双栏宽度
+figureHeight = 2.6;      
+set(gcf, 'Units', figureUnits, 'Position', [2 2 figureWidth figureHeight]);
 set(gcf, 'PaperUnits', figureUnits);
-set(gcf, 'PaperSize', [figureWidth+5 figureHeight+5]);  % 稍微增加高度以容纳图例
+set(gcf, 'PaperSize', [figureWidth figureHeight]);
 set(gcf, 'PaperPositionMode', 'manual');
-set(gcf, 'PaperPosition', [0 0 figureWidth+2 figureHeight+2]);
+set(gcf, 'PaperPosition', [0 0 figureWidth figureHeight]);
 
 % 调整子图间距
-tight_spacing = 0.09;
+tight_spacing = 0.12;
 pos1 = get(subplot(1,2,1), 'Position');
 pos2 = get(subplot(1,2,2), 'Position');
 pos1(1) = tight_spacing;
@@ -78,5 +80,5 @@ pos2(1) = 1 - tight_spacing - pos2(3);
 set(subplot(1,2,1), 'Position', pos1);
 set(subplot(1,2,2), 'Position', pos2);
 
-% 保存图形
-print('visualization/convergence_analysis_steelpowder', '-dpdf', '-r300');
+% 使用print函数导出高质量矢量PDF
+print(gcf, 'visualization/convergence_analysis_steelpowder', '-dpdf', '-painters', '-r600');

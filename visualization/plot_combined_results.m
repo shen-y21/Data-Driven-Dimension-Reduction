@@ -1,5 +1,5 @@
 % 创建适合IEEE双栏论文的图形（3.5英寸宽）
-figure('Units', 'inches', 'Position', [1, 1, 4.5, 2.6]);  % 增加高度以适应完整显示
+figure('Units', 'inches', 'Position', [1, 1, 4.5, 2.6], 'Renderer', 'painters');  % 增加高度以适应完整显示
 
 % 定义共同的参数
 data_set_names = ["cement", "steelpowder", "steelmaking"];
@@ -96,5 +96,6 @@ pos2(1) = 1 - tight_spacing - pos2(3);
 set(subplot(1,2,1), 'Position', pos1);
 set(subplot(1,2,2), 'Position', pos2);
 
-% 保存图形到visualization文件夹
-print('visualization/combined_results', '-dpdf', '-r300');
+% 使用print函数导出高质量矢量PDF
+print(gcf, 'visualization/combined_results.pdf', '-dpdf', '-painters', '-r600');
+
