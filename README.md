@@ -62,6 +62,68 @@ Contains the reproduced OVB methods. Please refer to the documentation inside fo
 4. View results in the `results` folder
 5. Use visualization tools to analyze outputs
 
+# Frequently Asked Questions (FAQ)
+
+## 1. Why choose the Adjustable Load Fleet (ALF) model over the Virtual Battery (VB) model?
+
+The ALF model offers several advantages over the VB model:
+
+- **Modeling Philosophy**: While the VB model focuses on load deviations from a baseline, the ALF model directly represents the actual composition of industrial loads, making it more intuitive for industrial applications
+- **Parameter Flexibility**: The VB model uses only 3 parameters, whereas the ALF model offers 4I parameters (where I is the number of ALs), allowing for more accurate representation of complex industrial load characteristics
+- **Physical Interpretation**: The ALF model better reflects the physical reality of industrial loads, where multiple pieces of equipment operate simultaneously with their own power and energy constraints
+- **Baseline Independence**: Unlike the VB model, the ALF model operates independently of any baseline, making it more robust to changes in operating conditions
+
+## 2. How does the ALF model handle coupling relationships between different devices?
+
+In practical production, device coupling typically falls into three scenarios:
+
+1. **Large Buffer Scenario**: When intermediate product buffer areas are sufficiently large, production stages are effectively decoupled and can be modeled as parallel ALs
+2. **Small Buffer Scenario**: When buffer areas are very small, adjacent stages must open/close simultaneously and can be modeled as a single AL
+3. **Medium Buffer Scenario**: For cases between these extremes, additional constraints can be introduced to the ALF model to describe device coupling relationships
+
+## 3. How is feasibility guaranteed after model simplification?
+
+Our approach doesn't pursue strict inner approximation (ensuring RC solutions are always feasible for OC) for several reasons:
+
+1. In actual grid interaction scenarios, demand-side resources typically allow for a 10-20% error margin, and our method's error (under 10%) falls within this acceptable range
+2. Inner approximation methods often exhibit strong conservatism that can significantly limit the benefits of industrial user participation in grid interactions
+3. In practical applications, industrial users often have other flexible resources (e.g., energy storage, electric vehicles) that can help achieve desired outcomes
+
+## 4. How is the number of Adjustable Loads (ALs) determined?
+
+The selection of AL numbers involves balancing several factors:
+
+- More ALs allow RCs to better approximate OCs but increase computational costs
+- Too many ALs may lead to overfitting, especially with limited training data
+- The choice should be based on specific application scenarios
+- Optimal AL numbers can be selected from training data through methods like cross-validation
+
+## 5. What are the main innovations of the D3R framework?
+
+The D3R framework's key innovations include:
+
+1. Bypassing the convexity requirement of traditional analytical methods by working with optimal solutions rather than constraints themselves
+2. Handling both continuous and integer variables simultaneously
+3. Learning reduced constraints directly from data, making it more adaptable to different types of industrial loads
+4. Providing a flexible framework where different forms of reduced constraints can be chosen based on needs
+
+## 6. What are the limitations of the current ALF model?
+
+The current ALF model has several limitations:
+
+1. It may not fully capture temporal coupling between production processes
+2. The model relaxes integer variables, which might affect accuracy in some scenarios
+3. It uses a simplified representation of complex industrial processes
+4. The decomposition of total energy consumption into individual devices requires additional consideration
+
+## 7. How is the training convergence ensured?
+
+Training convergence is achieved through:
+
+1. Careful selection of learning rates (e.g., 0.05 instead of 0.9)
+2. Implementation of different iteration strategies (single-day or multi-day batch training)
+3. Monitoring of key parameters during training until stabilization (relative change < 0.02%)
+4. Use of appropriate stopping criteria based on parameter convergence
 ---
 
 # Data-Driven-Dimension-Reduction (中文)
@@ -128,5 +190,49 @@ Contains the reproduced OVB methods. Please refer to the documentation inside fo
 4. 在`results`文件夹中查看结果
 5. 使用可视化工具分析输出
 
+# Frequently Asked Questions (FAQ)
+
+## 1. 为什么选择使用可调负荷群(ALF)模型而不是虚拟电池(VB)模型?
+
+ALF模型相比VB模型有以下优势:
+
+- **建模理念不同**: VB模型关注负荷与基准负荷的偏差,而ALF模型直接表示工业负荷的实际组成,更适合工业应用场景
+- **参数灵活性**: VB模型仅使用3个参数,而ALF模型有4I个参数(I为可调负荷数量),能更准确地表示复杂的工业负荷特性
+- **物理解释性**: ALF模型更好地反映了工业负荷的物理现实,即多个设备同时运行且各自具有功率和能量约束
+- **基准独立性**: 与VB模型不同,ALF模型不需要定义基准负荷,使其对运行条件变化更具鲁棒性
+
+## 2. ALF模型如何处理不同设备之间的耦合关系?
+
+实际生产中设备耦合主要有三种情况:
+
+1. **大缓冲区场景**: 当中间产品缓冲区足够大时,各生产阶段基本解耦,可以用并行的AL建模
+2. **小缓冲区场景**: 当缓冲区很小时,相邻阶段必须同时开/关,可以作为单个AL建模
+3. **中等缓冲区场景**: 对于介于两者之间的情况,可以在ALF模型中引入额外约束来描述设备间耦合关系
+
+## 3. 模型简化后如何保证可行性?
+
+本方法不追求严格的内部近似(确保RC解对OC始终可行)的原因是:
+
+1. 实际电网互动场景中,需求侧资源通常允许10-20%的误差范围,而本方法误差(低于10%)在可接受范围内
+2. 内部近似方法往往过于保守,会显著限制工业用户参与电网互动的收益
+3. 实际应用中,工业用户通常有其他灵活资源(如储能、电动汽车等)可以帮助实现期望的效果
+
+## 4. 如何选择可调负荷(AL)的数量?
+
+AL数量的选择需要权衡以下因素:
+
+- 更多的AL允许RC更准确地近似OC,但会增加计算成本
+- AL数量过多可能导致过拟合,特别是在训练数据有限的情况下
+- 需要根据具体应用场景选择合适的AL数量
+- 可以通过交叉验证等方法从训练数据中选择最优AL数量
+
+## 5. D3R框架的主要创新点是什么?
+
+D3R框架的主要创新在于:
+
+1. 绕过了传统分析方法对凸性的要求,通过处理最优解而不是约束本身
+2. 能同时处理连续变量和整数变量
+3. 直接从数据中学习简化约束,使其更适应不同类型的工业负荷
+4. 提供了一个灵活的框架,可以根据需要选择不同的简化约束形式
 ---
 
