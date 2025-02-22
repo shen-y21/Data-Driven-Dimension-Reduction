@@ -1,5 +1,7 @@
 # Data-Driven-Dimension-Reduction
 
+Citation: Ruike Lyu, Hongye Guo, Goran Strbac and Chongqing Kang. "Data-Driven Dimension Reduction for Industrial Load Modeling Using Inverse Optimization," IEEE Transactions on Smart Grid (2025), accepted.
+
 ## Project Structure
 
 ### Data Sets (`data_set/`)
