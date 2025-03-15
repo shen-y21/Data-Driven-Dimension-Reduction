@@ -2,6 +2,8 @@
 
 Citation: Ruike Lyu, Hongye Guo, Goran Strbac and Chongqing Kang. "Data-Driven Dimension Reduction for Industrial Load Modeling Using Inverse Optimization," IEEE Transactions on Smart Grid (2025), accepted.
 
+Video: https://www.bilibili.com/video/BV1JFQ1YwEsK/?vd_source=18e4b7b95b505bbe9bf571ca4ff73d55
+
 ## Project Structure
 
 ### Data Sets (`data_set/`)
