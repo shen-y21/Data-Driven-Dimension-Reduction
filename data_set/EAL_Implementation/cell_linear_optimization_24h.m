@@ -25,7 +25,6 @@ C_Al2O3 = sdpvar(1, T+1, 'full');      % 氧化铝浓度
 C_AlF3 = sdpvar(1, T+1, 'full');       % 氟化铝浓度
 C_CaF2 = sdpvar(1, T+1, 'full');       % 氟化钙浓度
 C_LiF = sdpvar(1, T+1, 'full');        % 氟化锂浓度
-% m_Al2O3 = sdpvar(1, T+1, 'full');    % 氧化铝质量 (kg)
 
 % 辅助变量
 T_liq = sdpvar(1, T, 'full');          % 液相温度 (°C)（每小时更新一次）
@@ -33,24 +32,18 @@ Superheat = sdpvar(1, T, 'full');      % 过热度 (°C)（每小时更新一次
 
 % 电流效率变量（温度相关）
 g = sdpvar(1, T, 'full');              % 电流效率（每小时更新一次）
-% g = g_base;
 
 % 引入McCormick包络的辅助变量
 Z_I_g = sdpvar(1, T, 'full');          % Z_I_g(t) = I(t) * g(t)
+
 Z_C_Al2O3_m = sdpvar(1, T+1, 'full');  % Z_C_Al2O3_m(t) = C_Al2O3(t) * m_B(t)
 Z_C_AlF3_m = sdpvar(1, T+1, 'full');   % Z_C_AlF3_m(t) = C_AlF3(t) * m_B(t)
 Z_C_CaF2_m = sdpvar(1, T+1, 'full');   % Z_C_CaF2_m(t) = C_CaF2(t) * m_B(t)
 Z_C_LiF_m = sdpvar(1, T+1, 'full');    % Z_C_LiF_m(t) = C_LiF(t) * m_B(t)
 
-% 分段McCormick包络变量
-% 温度差分分段变量
-N_T_segments = 4;  % 温度差分分段数
 Z_mB_dT = sdpvar(1, T, 'full');        % Z_mB_dT(t) = m_B(t) * (T_B(t+1) - T_B(t))
-% 质量差分分段变量  
-N_m_segments = 4;  % 质量差分分段数
 Z_Lledge_dm = sdpvar(1, T, 'full');    % Z_Lledge_dm(t) = L_ledge(t) * (m_B(t+1) - m_B(t))
 
-% Ledge厚度与过热度相乘的McCormick包络变量
 Z_Lledge_superheat = sdpvar(1, T, 'full');  % Z_Lledge_superheat(t) = L_ledge(t) * (T_B(t) - T_liq(t))
 
 % 调节动作变量
@@ -121,7 +114,7 @@ for t = 1:T+1
     constraints = [constraints, Z_C_LiF_m(t) <= C_LiF_max * m_B(t) + m_B_min * C_LiF(t) - C_LiF_max * m_B_min];
 end
 
-% 分段McCormick包络约束（使用从参数文件读取的分段参数）
+% 分段McCormick包络约束
 % 创建包含0的分段点：将范围分为负值段和正值段
 dT_negative_segments = linspace(dT_T_min, 0, ceil(N_T_segments/2) + 1);  % 负值段
 dT_positive_segments = linspace(0, dT_T_max, floor(N_T_segments/2) + 1);  % 正值段
@@ -238,9 +231,6 @@ for t = 1:T
     constraints = [constraints, Z_Lledge_superheat(t) <= L_ledge_max * superheat_t + Superheat_min * L_ledge(t) - L_ledge_max * Superheat_min];
 end
 
-% 调节状态唯一性约束
-constraints = [constraints, lamda_keep + lamda_up + lamda_down == ones(1, T-1)];
-
 % 功率计算（线性化处理，在额定电流附近泰勒展开）
 P_N = (EMF + R_cell*I_N*1000)*I_N;  % 额定功率 (kW)
 dP_dI_N = EMF + 2*R_cell*I_N*1000;  % 功率对电流的导数在额定点的值
@@ -261,6 +251,9 @@ error_pct = abs(P_exact - P_linear) ./ P_exact * 100;
 fprintf('电流范围: %.1f - %.1f kA\n', I_min, I_max);
 fprintf('最大线性化误差: %.2f%%\n', max(error_pct));
 fprintf('========================\n\n');
+
+% 调节状态唯一性约束
+constraints = [constraints, lamda_keep + lamda_up + lamda_down == ones(1, T-1)];
 
 % 功率爬坡约束（基于每小时功率变化）
 constraints = [constraints, P(2:end) - P(1:end-1) >= -R_down * lamda_down * P_N];
@@ -315,7 +308,7 @@ R_ledge_t = L_ledge(1:T) / (1.5 * A_ledge); % 每个时刻的ledge导热热阻 (
 R_ledge_amb_t = R_ledge_t + R_shell_side + R_shell_side_amb; % 每个时刻的总ledge到环境热阻 (K/W)
 
 % 使用分段McCormick包络重新整理浴液质量更新约束
-coeff_m_B = -delta_t*3600 / lf;
+coeff_m_B = delta_t*3600 / lf;
 constraints = [constraints, ...
     Z_Lledge_dm / (1.5 * A_ledge) + (R_shell_side + R_shell_side_amb) * (m_B(2:T+1) - m_B(1:T)) == ...
     coeff_m_B * (Z_Lledge_superheat / (1.5 * A_ledge * R_B_ledge) + ...
@@ -403,6 +396,9 @@ if result.problem == 0
     Z_Lledge_superheat_opt = value(Z_Lledge_superheat);
     lambda_T_opt = value(lambda_T);
     lambda_m_opt = value(lambda_m);
+    lamda_up_opt = value(lamda_up);
+    lamda_down_opt = value(lamda_down);
+    lamda_keep_opt = value(lamda_keep);
     
     % 计算各项成本
     elec_cost = value(Cost_elec);
@@ -497,6 +493,7 @@ if result.problem == 0
          'P_input_opt', 'Y_Al_opt', 'T_liq_opt', 'Superheat_opt', 'g_opt', 'Z_I_g_opt', ...
          'Z_C_Al2O3_m_opt', 'Z_C_AlF3_m_opt', 'Z_C_CaF2_m_opt', 'Z_C_LiF_m_opt', ...
          'Z_mB_dT_opt', 'Z_Lledge_dm_opt', 'Z_Lledge_superheat_opt', 'lambda_T_opt', 'lambda_m_opt', ...
+         'lamda_up_opt', 'lamda_down_opt', 'lamda_keep_opt', ...
          'elec_cost', 'Al2O3_cost', 'Al_revenue', 'total_cost');
     
     %% 可视化结果

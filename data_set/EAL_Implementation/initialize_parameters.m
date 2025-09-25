@@ -98,16 +98,16 @@ L_ledge_init = 0.065;       % 初始ledge厚度 (m)
 I_N = 500;                  % 额定电流 (kA)
 I_min = 0.7 * I_N;          % 电流下限 (kA)
 I_max = 1.1 * I_N;          % 电流上限 (kA)
-g_min = 0.93;
-g_max = 0.95;
+g_min = 0.92;
+g_max = 0.96;
 
 T_B_min = 950;              % 浴液温度下限 (°C)
 T_B_max = 980;              % 浴液温度上限 (°C)
 Superheat_min = 5;          % 最小过热度 (°C)
 Superheat_max = 15;         % 最大过热度 (°C)
 
-C_Al2O3_min = 0.025;        % 氧化铝浓度下限
-C_Al2O3_max = 0.035;        % 氧化铝浓度上限
+C_Al2O3_min = 0.02;        % 氧化铝浓度下限
+C_Al2O3_max = 0.04;        % 氧化铝浓度上限
 L_ledge_min = 0.05;         % ledge厚度下限 (m)
 L_ledge_max = 0.10;         % ledge厚度上限 (m)
 
@@ -120,8 +120,8 @@ m_feed_Al2O3_max = 8;       % 最大进料速率 (kg/min)
 
 %% McCormick包络参数
 % 分段McCormick包络参数
-N_T_segments = 2;           % 温度差分分段数
-N_m_segments = 2;           % 质量差分分段数
+N_T_segments = 4;           % 温度差分分段数
+N_m_segments = 4;           % 质量差分分段数
 
 % 温度差分分段范围
 dT_T_min = -10;             % 温度差分最小值 (°C)
@@ -140,8 +140,8 @@ C_LiF_min = 0.012;          % LiF浓度下限
 C_LiF_max = 0.017;          % LiF浓度上限
 
 % 浴液质量范围（用于McCormick包络）
-m_B_min = 6000;             % 浴液质量下限 (kg)
-m_B_max = 7800;             % 浴液质量上限 (kg)
+m_B_min = 5000;             % 浴液质量下限 (kg)
+m_B_max = 9000;             % 浴液质量上限 (kg)
 
 fprintf('参数初始化完成\n');
 fprintf('优化时长: %d小时, 时间步长: %d小时\n', T, delta_t);
