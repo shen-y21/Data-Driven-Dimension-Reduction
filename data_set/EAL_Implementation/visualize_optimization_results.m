@@ -1,8 +1,10 @@
-function visualize_optimization_results(solution, params)
+function [I_opt, m_feed_Al2O3_opt, T_B_opt, L_ledge_opt, m_B_opt, C_Al2O3_opt, C_AlF3_opt, C_CaF2_opt, C_LiF_opt, T_liq_opt, Superheat_opt, g_opt, P_opt, Y_Al_opt, dT_values_opt, dm_values_opt] = visualize_optimization_results(solution, params)
 % 可视化函数：显示边界收缩算法优化结果
 % 输入：
 %   solution - 优化结果结构体
 %   params - 参数结构体
+% 输出：
+%   带_opt后缀的优化结果变量，用于与cell_linear_simulation_min兼容
 
 fprintf('\n=== 开始可视化优化结果 ===\n');
 
@@ -229,4 +231,24 @@ grid on;
 xtickangle(45);
 
 fprintf('可视化完成！\n');
+
+% 返回带_opt后缀的优化结果变量，用于与cell_linear_simulation_min兼容
+if nargout > 0
+    I_opt = solution.I;
+    m_feed_Al2O3_opt = solution.m_feed_Al2O3;
+    T_B_opt = solution.T_B;
+    L_ledge_opt = solution.L_ledge;
+    m_B_opt = solution.m_B;
+    C_Al2O3_opt = solution.C_Al2O3;
+    C_AlF3_opt = solution.C_AlF3;
+    C_CaF2_opt = solution.C_CaF2;
+    C_LiF_opt = solution.C_LiF;
+    T_liq_opt = solution.T_liq;
+    Superheat_opt = solution.Superheat;
+    g_opt = solution.g;
+    P_opt = solution.P;
+    Y_Al_opt = solution.Y_Al;
+    dT_values_opt = solution.dT_values;
+    dm_values_opt = solution.dm_values;
+end
 end

@@ -57,6 +57,7 @@ constraints = [];
 % 初始条件约束
 constraints = [constraints, I(1) == I_N];
 constraints = [constraints, T_B(1) == T_B_init];
+constraints = [constraints, T_B(T) == T_B_init];
 constraints = [constraints, L_ledge(1) == L_ledge_init];
 constraints = [constraints, m_B(1) == m_B_init];
 constraints = [constraints, C_Al2O3(1) == C_Al2O3_init];

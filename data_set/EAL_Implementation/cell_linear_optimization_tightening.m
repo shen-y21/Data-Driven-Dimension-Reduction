@@ -1,10 +1,11 @@
 % 电解铝负荷用能优化模型 - 边界收缩算法简化版本
 % 基于分段McCormick包络的边界收缩算法实现
-clc; clear; yalmip("clear"); close all
+% clc; clear; yalmip("clear");
+close all
 
 %% 基本参数设置
 % 使用参数初始化函数（包含拟合结果加载）
-params = f_initialize_parameters();
+params = f_initialize_parameters(Price);
 
 %% 边界收缩算法实现
 fprintf('=== 开始边界收缩算法 ===\n');
@@ -413,19 +414,21 @@ if ~isempty(boundary_history) && ~isempty(differential_history)
     grid on;
 end
 
-% 保存结果
-save('boundary_tightening_results.mat', 'solution', 'iteration_history', 'error_history', ...
+% 可视化最后一次求解结果并获取带_opt后缀的变量
+if ~isempty(solution) && feasible
+    [I_opt, m_feed_Al2O3_opt, T_B_opt, L_ledge_opt, m_B_opt, C_Al2O3_opt, C_AlF3_opt, C_CaF2_opt, C_LiF_opt, T_liq_opt, Superheat_opt, g_opt, P_opt, Y_Al_opt, dT_values_opt, dm_values_opt] = visualize_optimization_results(solution, params);
+end
+
+% 保存结果（包括带_opt后缀的变量）
+save('boundary_tightening_results.mat', 'solution', 'feasible', 'iteration_history', 'error_history', ...
      'boundary_history', 'differential_history', 'ledge_history', 'mass_history', ...
      'shrink_factor_history', 'dT_T_min_current', 'dT_T_max_current', 'dm_m_min_current', 'dm_m_max_current', ...
      'L_ledge_min_current', 'L_ledge_max_current', 'm_B_min_current', 'm_B_max_current', ...
-     'obj_value', 'iter');
+     'obj_value', 'iter', 'I_opt', 'm_feed_Al2O3_opt', 'T_B_opt', 'L_ledge_opt', 'm_B_opt', ...
+     'C_Al2O3_opt', 'C_AlF3_opt', 'C_CaF2_opt', 'C_LiF_opt', 'T_liq_opt', 'Superheat_opt', ...
+     'g_opt', 'P_opt', 'Y_Al_opt', 'dT_values_opt', 'dm_values_opt');
 
 fprintf('结果已保存到 boundary_tightening_results.mat\n');
-
-% 可视化最后一次求解结果
-if ~isempty(solution) && feasible
-    visualize_optimization_results(solution, params);
-end
 
 %% 辅助函数：求解分段McCormick包络优化问题
 function [obj_value, solution, feasible] = solve_piecewise_mccormick_optimization(...
@@ -1185,6 +1188,7 @@ function [constraints, variables, obj] = build_optimization_problem(...
     % 初始条件
     constraints = [constraints, variables.I(1) == params.I_N];
     constraints = [constraints, variables.T_B(1) == params.T_B_init];
+    constraints = [constraints, variables.T_B(params.T) == params.T_B_init];
     constraints = [constraints, variables.L_ledge(1) == params.L_ledge_init];
     constraints = [constraints, variables.m_B(1) == params.m_B_init];
     constraints = [constraints, variables.C_Al2O3(1) == params.C_Al2O3_init];

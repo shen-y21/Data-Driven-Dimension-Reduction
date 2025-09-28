@@ -23,12 +23,12 @@ for idx_day = 1 : length(Price_days)
     yalmip('clear');
     
     % 运行电解铝优化模型
-    cell_linear_optimization_24h;
+    cell_linear_optimization_tightening;
     
     % 检查求解是否成功
-    if result.problem == 0
+    if feasible
         % 提取最优功率方案 (kW)
-        P_opt = value(P_input_opt);
+        % P_opt = value(P_input_opt);
         
         % 转换为MW并记录用电数据
         E_primal = P_opt' / 1000; % 转换为MW
@@ -38,7 +38,7 @@ for idx_day = 1 : length(Price_days)
         
         fprintf('  第%d天求解成功，总功率: %.2f MW\n', idx_day, sum(E_primal));
     else
-        fprintf('  第%d天求解失败，错误代码: %d\n', idx_day, result.problem);
+        fprintf('  第%d天求解失败\n', idx_day);
         % 如果求解失败，使用零功率或前一天的功率
         if idx_day == 1
             E_primal = zeros(24, 1); % 第一天失败使用零功率
