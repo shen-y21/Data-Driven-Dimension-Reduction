@@ -1,8 +1,6 @@
-% 电解铝负荷用能优化模型（McCormick包络版本）
-% 基于简化电解槽线性仿真模型的负荷优化，使用McCormick包络处理部分双线性约束
-% McCormick包络应用于：电流效率×电流、各组分浓度×浴液质量、Ledge厚度×过热度
-% 直接使用双线性表达式：浴液质量×温度差分、Ledge厚度×浴液质量差分
-clc; clear; yalmip("clear"); 
+% 电解铝负荷用能优化模型（双线性版本）
+% 基于简化电解槽线性仿真模型的负荷优化，保留原始双线性约束
+% clc; clear; yalmip("clear"); 
 close all
 
 %% 初始化参数
@@ -35,27 +33,13 @@ Superheat = sdpvar(1, T, 'full');      % 过热度 (°C)（每小时更新一次
 % 电流效率变量（温度相关）
 g = sdpvar(1, T, 'full');              % 电流效率（每小时更新一次）
 
-% 引入McCormick包络的辅助变量
-Z_I_g = sdpvar(1, T, 'full');          % Z_I_g(t) = I(t) * g(t)
-
-Z_C_Al2O3_m = sdpvar(1, T+1, 'full');  % Z_C_Al2O3_m(t) = C_Al2O3(t) * m_B(t)
-Z_C_AlF3_m = sdpvar(1, T+1, 'full');   % Z_C_AlF3_m(t) = C_AlF3(t) * m_B(t)
-Z_C_CaF2_m = sdpvar(1, T+1, 'full');   % Z_C_CaF2_m(t) = C_CaF2(t) * m_B(t)
-Z_C_LiF_m = sdpvar(1, T+1, 'full');    % Z_C_LiF_m(t) = C_LiF(t) * m_B(t)
-
-% 注意：Z_mB_dT 和 Z_Lledge_dm 不需要McCormick包络处理，可以直接使用双线性表达式
-
-Z_Lledge_superheat = sdpvar(1, T, 'full');  % Z_Lledge_superheat(t) = L_ledge(t) * (T_B(t) - T_liq(t))
-
-% 注意：Z_mB_dT 和 Z_Lledge_dm 不需要McCormick包络处理，可以直接使用双线性表达式
-
 % 调节动作变量
 lamda_keep = binvar(1, T-1, 'full');   % 保持状态
 lamda_up = binvar(1, T-1, 'full');     % 上调状态
 lamda_down = binvar(1, T-1, 'full');   % 下调状态
 
 %% 约束条件
-constraints = [];
+constraints = [];111
 
 % 初始条件约束
 constraints = [constraints, I(1) == I_N];
@@ -68,12 +52,6 @@ constraints = [constraints, C_AlF3(1) == C_AlF3_init];
 constraints = [constraints, C_CaF2(1) == C_CaF2_init];
 constraints = [constraints, C_LiF(1) == C_LiF_init];
 
-% 初始McCormick包络变量值
-constraints = [constraints, Z_C_Al2O3_m(1) == C_Al2O3_init * m_B_init];
-constraints = [constraints, Z_C_AlF3_m(1) == C_AlF3_init * m_B_init];
-constraints = [constraints, Z_C_CaF2_m(1) == C_CaF2_init * m_B_init];
-constraints = [constraints, Z_C_LiF_m(1) == C_LiF_init * m_B_init];
-
 % 电流上下限约束
 constraints = [constraints, I_min <= I <= I_max];
 
@@ -82,53 +60,6 @@ constraints = [constraints, m_feed_Al2O3_min <= m_feed_Al2O3 <= m_feed_Al2O3_max
 
 % 电流效率范围约束（从参数文件读取）
 constraints = [constraints, g_min <= g <= g_max];
-
-% McCormick包络约束
-% 电流效率与电流相乘
-constraints = [constraints, Z_I_g >= I_min * g + g_min * I - I_min * g_min];
-constraints = [constraints, Z_I_g >= I_max * g + g_max * I - I_max * g_max];
-constraints = [constraints, Z_I_g <= I_min * g + g_max * I - I_min * g_max];
-constraints = [constraints, Z_I_g <= I_max * g + g_min * I - I_max * g_min];
-
-% 浓度与浴液质量相乘（使用从参数文件读取的范围）
-for t = 1:T+1
-    % Al2O3浓度与浴液质量的McCormick包络
-    constraints = [constraints, Z_C_Al2O3_m(t) >= C_Al2O3_min * m_B(t) + m_B_min * C_Al2O3(t) - C_Al2O3_min * m_B_min];
-    constraints = [constraints, Z_C_Al2O3_m(t) >= C_Al2O3_max * m_B(t) + m_B_max * C_Al2O3(t) - C_Al2O3_max * m_B_max];
-    constraints = [constraints, Z_C_Al2O3_m(t) <= C_Al2O3_min * m_B(t) + m_B_max * C_Al2O3(t) - C_Al2O3_min * m_B_max];
-    constraints = [constraints, Z_C_Al2O3_m(t) <= C_Al2O3_max * m_B(t) + m_B_min * C_Al2O3(t) - C_Al2O3_max * m_B_min];
-    
-    % AlF3浓度与浴液质量的McCormick包络
-    constraints = [constraints, Z_C_AlF3_m(t) >= C_AlF3_min * m_B(t) + m_B_min * C_AlF3(t) - C_AlF3_min * m_B_min];
-    constraints = [constraints, Z_C_AlF3_m(t) >= C_AlF3_max * m_B(t) + m_B_max * C_AlF3(t) - C_AlF3_max * m_B_max];
-    constraints = [constraints, Z_C_AlF3_m(t) <= C_AlF3_min * m_B(t) + m_B_max * C_AlF3(t) - C_AlF3_min * m_B_max];
-    constraints = [constraints, Z_C_AlF3_m(t) <= C_AlF3_max * m_B(t) + m_B_min * C_AlF3(t) - C_AlF3_max * m_B_min];
-    
-    % CaF2浓度与浴液质量的McCormick包络
-    constraints = [constraints, Z_C_CaF2_m(t) >= C_CaF2_min * m_B(t) + m_B_min * C_CaF2(t) - C_CaF2_min * m_B_min];
-    constraints = [constraints, Z_C_CaF2_m(t) >= C_CaF2_max * m_B(t) + m_B_max * C_CaF2(t) - C_CaF2_max * m_B_max];
-    constraints = [constraints, Z_C_CaF2_m(t) <= C_CaF2_min * m_B(t) + m_B_max * C_CaF2(t) - C_CaF2_min * m_B_max];
-    constraints = [constraints, Z_C_CaF2_m(t) <= C_CaF2_max * m_B(t) + m_B_min * C_CaF2(t) - C_CaF2_max * m_B_min];
-    
-    % LiF浓度与浴液质量的McCormick包络
-    constraints = [constraints, Z_C_LiF_m(t) >= C_LiF_min * m_B(t) + m_B_min * C_LiF(t) - C_LiF_min * m_B_min];
-    constraints = [constraints, Z_C_LiF_m(t) >= C_LiF_max * m_B(t) + m_B_max * C_LiF(t) - C_LiF_max * m_B_max];
-    constraints = [constraints, Z_C_LiF_m(t) <= C_LiF_min * m_B(t) + m_B_max * C_LiF(t) - C_LiF_min * m_B_max];
-    constraints = [constraints, Z_C_LiF_m(t) <= C_LiF_max * m_B(t) + m_B_min * C_LiF(t) - C_LiF_max * m_B_min];
-end
-
-% Ledge厚度与过热度相乘的McCormick包络约束
-for t = 1:T
-    superheat_t = T_B(t) - T_liq(t);  % 过热度 = T_B(t) - T_liq(t)
-    
-    % 全局McCormick包络约束：Z_Lledge_superheat(t) = L_ledge(t) * superheat_t
-    constraints = [constraints, Z_Lledge_superheat(t) >= L_ledge_min * superheat_t + Superheat_min * L_ledge(t) - L_ledge_min * Superheat_min];
-    constraints = [constraints, Z_Lledge_superheat(t) >= L_ledge_max * superheat_t + Superheat_max * L_ledge(t) - L_ledge_max * Superheat_max];
-    constraints = [constraints, Z_Lledge_superheat(t) <= L_ledge_min * superheat_t + Superheat_max * L_ledge(t) - L_ledge_min * Superheat_max];
-    constraints = [constraints, Z_Lledge_superheat(t) <= L_ledge_max * superheat_t + Superheat_min * L_ledge(t) - L_ledge_max * Superheat_min];
-end
-
-% 注意：Z_mB_dT 和 Z_Lledge_dm 不需要McCormick包络处理，可以直接使用双线性表达式
 
 % 调节状态唯一性约束
 constraints = [constraints, lamda_keep + lamda_up + lamda_down == ones(1, T-1)];
@@ -185,8 +116,8 @@ constraints = [constraints, g == coeff_global(1) + ...
                                 coeff_global(3)*C_AlF3(1:T)*100 + ...
                                 coeff_global(4)*C_LiF(1:T)*100];
 
-% 状态变量更新约束（使用McCormick包络变量和双线性表达式）
-% 浴液温度更新约束（直接使用双线性表达式）
+% 状态变量更新约束（使用原始双线性表达式）
+% 浴液温度更新约束（保留双线性项）
 constraints = [constraints, ...
     m_B(1:T) .* c_B .* (T_B(2:T+1) - T_B(1:T)) + m_M * c_M * (T_B(2:T+1) - T_B(1:T)) == ...
     3600*delta_t * (P(1:T)*1000 - ...
@@ -194,9 +125,9 @@ constraints = [constraints, ...
     (T_B(1:T) - T_liq)/R_B_ledge - ...
     (T_B(1:T) - T_amb)/R_bottom_total - ...
     0.596*60*1e3*m_feed_Al2O3(1:T) - ...
-    5.474*3600*1e3*(Z_I_g*1000*M_Al)/(F*z))];
+    5.474*3600*1e3*(I(1:T) .* g(1:T)*1000*M_Al)/(F*z))];
 
-% 浴液质量更新约束（使用McCormick包络变量）
+% 浴液质量更新约束（保留双线性项）
 % 计算固定的热阻分量
 R_shell_side = 0.25/(47 * A_ledge); % 槽壳侧部导热 (K/W)
 R_shell_side_amb = 1/(22 * A_ledge); % 槽壳侧部到环境对流 (K/W)
@@ -205,12 +136,11 @@ R_shell_side_amb = 1/(22 * A_ledge); % 槽壳侧部到环境对流 (K/W)
 R_ledge_t = L_ledge(1:T) / (1.5 * A_ledge); % 每个时刻的ledge导热热阻 (K/W)
 R_ledge_amb_t = R_ledge_t + R_shell_side + R_shell_side_amb; % 每个时刻的总ledge到环境热阻 (K/W)
 
-% 使用McCormick包络变量重新整理浴液质量更新约束
+% 使用原始双线性表达式重新整理浴液质量更新约束
 coeff_m_B = delta_t*3600 / lf;
 constraints = [constraints, ...
     R_ledge_amb_t .* (m_B(2:T+1) - m_B(1:T)) == ...
-    coeff_m_B * (Z_Lledge_superheat / (1.5 * A_ledge * R_B_ledge) + ...
-    (R_shell_side + R_shell_side_amb) / R_B_ledge * (T_B(1:T) - T_liq) - (T_liq - T_amb))];
+    coeff_m_B * (R_ledge_amb_t / R_B_ledge .* (T_B(1:T) - T_liq) - (T_liq - T_amb))];
 
 % ledge厚度更新约束
 coeff_L_ledge = 1 / (rho_ledge * A_ledge);
@@ -218,20 +148,20 @@ constraints = [constraints, ...
     L_ledge(2:T+1) == L_ledge(1:T) - ...
     coeff_L_ledge * (m_B(2:T+1) - m_B(1:T))];
 
-% 各组分浓度更新约束（使用McCormick包络变量）
+% 各组分浓度更新约束（保留双线性项）
 coeff_m_Al2O3_feed = 60*delta_t;
 coeff_m_Al2O3_reaction = -3600*delta_t * M_Al2O3 / (F*2*z);
 
-% 氧化铝浓度更新约束（使用McCormick包络变量）
+% 氧化铝浓度更新约束（保留双线性项）
 constraints = [constraints, ...
-    Z_C_Al2O3_m(2:T+1) == Z_C_Al2O3_m(1:T) + ...
+    C_Al2O3(2:T+1) .* m_B(2:T+1) == C_Al2O3(1:T) .* m_B(1:T) + ...
     coeff_m_Al2O3_feed * m_feed_Al2O3(1:T) + ...
-    coeff_m_Al2O3_reaction * (Z_I_g*1000)];
+    coeff_m_Al2O3_reaction * (I(1:T) .* g(1:T)*1000)];
 
 % 其他组分浓度更新约束
-constraints = [constraints, Z_C_AlF3_m(2:T+1) == C_AlF3_init*m_B_init];
-constraints = [constraints, Z_C_CaF2_m(2:T+1) == C_CaF2_init*m_B_init];
-constraints = [constraints, Z_C_LiF_m(2:T+1) == C_LiF_init*m_B_init];
+constraints = [constraints, C_AlF3(2:T+1) .* m_B(2:T+1) == C_AlF3_init*m_B_init];
+constraints = [constraints, C_CaF2(2:T+1) .* m_B(2:T+1) == C_CaF2_init*m_B_init];
+constraints = [constraints, C_LiF(2:T+1) .* m_B(2:T+1) == C_LiF_init*m_B_init];
 
 % 温度约束
 constraints = [constraints, T_B_min <= T_B <= T_B_max];
@@ -252,8 +182,8 @@ Cost_elec = sum(P .* price_TOU') * delta_t;
 % 氧化铝用料成本
 Cost_Al2O3 = sum(m_feed_Al2O3 .* price_Al2O3) * delta_t;
 
-% 产品收益（使用McCormick包络变量）
-Y_Al = 3600*1e3 * (Z_I_g * M_Al) / (F*z); % kg/h
+% 产品收益（使用原始双线性表达式）
+Y_Al = 3600*1e3 * (I .* g * M_Al) / (F*z); % kg/h
 Revenue_Al = sum(Y_Al .* price_AL) * delta_t;
 
 % 总目标函数（最小化成本）
@@ -282,12 +212,6 @@ if result.problem == 0
     T_liq_opt = value(T_liq);
     Superheat_opt = value(Superheat);
     g_opt = value(g);
-    Z_I_g_opt = value(Z_I_g);
-    Z_C_Al2O3_m_opt = value(Z_C_Al2O3_m);
-    Z_C_AlF3_m_opt = value(Z_C_AlF3_m);
-    Z_C_CaF2_m_opt = value(Z_C_CaF2_m);
-    Z_C_LiF_m_opt = value(Z_C_LiF_m);
-    Z_Lledge_superheat_opt = value(Z_Lledge_superheat);
     lamda_up_opt = value(lamda_up);
     lamda_down_opt = value(lamda_down);
     lamda_keep_opt = value(lamda_keep);
@@ -307,55 +231,10 @@ if result.problem == 0
     fprintf('平均电流效率：%.4f\n', mean(g_opt));
     fprintf('电流效率范围：%.4f - %.4f\n', min(g_opt), max(g_opt));
     
-    % 验证McCormick包络约束
-    fprintf('\n=== McCormick包络验证 ===\n');
-    
-    % 验证电流效率与电流相乘的McCormick包络
-    I_g_product = I_opt .* g_opt;
-    mccormick_error_I_g = abs(Z_I_g_opt - I_g_product);
-    mccormick_rel_error_I_g = mccormick_error_I_g ./ (abs(I_g_product) + eps) * 100; % 相对误差（%）
-    fprintf('电流效率与电流相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_I_g));
-    fprintf('电流效率与电流相乘McCormick包络平均相对误差: %.4f%%\n', mean(mccormick_rel_error_I_g));
-    
-    % 验证浓度与浴液质量相乘的McCormick包络
-    C_Al2O3_m_product = C_Al2O3_opt .* m_B_opt;
-    C_AlF3_m_product = C_AlF3_opt .* m_B_opt;
-    C_CaF2_m_product = C_CaF2_opt .* m_B_opt;
-    C_LiF_m_product = C_LiF_opt .* m_B_opt;
-    
-    mccormick_error_C_Al2O3 = abs(Z_C_Al2O3_m_opt - C_Al2O3_m_product);
-    mccormick_error_C_AlF3 = abs(Z_C_AlF3_m_opt - C_AlF3_m_product);
-    mccormick_error_C_CaF2 = abs(Z_C_CaF2_m_opt - C_CaF2_m_product);
-    mccormick_error_C_LiF = abs(Z_C_LiF_m_opt - C_LiF_m_product);
-    
-    % 计算相对误差（%）
-    mccormick_rel_error_C_Al2O3 = mccormick_error_C_Al2O3 ./ (abs(C_Al2O3_m_product) + eps) * 100;
-    mccormick_rel_error_C_AlF3 = mccormick_error_C_AlF3 ./ (abs(C_AlF3_m_product) + eps) * 100;
-    mccormick_rel_error_C_CaF2 = mccormick_error_C_CaF2 ./ (abs(C_CaF2_m_product) + eps) * 100;
-    mccormick_rel_error_C_LiF = mccormick_error_C_LiF ./ (abs(C_LiF_m_product) + eps) * 100;
-    
-    fprintf('Al2O3浓度与浴液质量相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_C_Al2O3));
-    fprintf('AlF3浓度与浴液质量相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_C_AlF3));
-    fprintf('CaF2浓度与浴液质量相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_C_CaF2));
-    fprintf('LiF浓度与浴液质量相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_C_LiF));
-    
-    % 注意：m_B(t) * (T_B(t+1) - T_B(t)) 和 L_ledge(t) * (m_B(t+1) - m_B(t)) 不需要McCormick包络处理
-    
-    % 验证Ledge厚度与过热度相乘的McCormick包络
-    Lledge_superheat_product = L_ledge_opt(1:end-1) .* (T_B_opt(1:end-1) - T_liq_opt(1:end));
-    mccormick_error_Lledge_superheat = abs(Z_Lledge_superheat_opt - Lledge_superheat_product);
-    mccormick_rel_error_Lledge_superheat = mccormick_error_Lledge_superheat ./ (abs(Lledge_superheat_product) + eps) * 100;
-    fprintf('Ledge厚度与过热度相乘McCormick包络最大相对误差: %.4f%%\n', max(mccormick_rel_error_Lledge_superheat));
-    fprintf('Ledge厚度与过热度相乘McCormick包络平均相对误差: %.4f%%\n', mean(mccormick_rel_error_Lledge_superheat));
-    
-    fprintf('========================\n');
-    
     % 保存优化结果
     save('electrolysis_bilinear_optimization_results.mat', 'I_opt', 'm_feed_Al2O3_opt', 'T_B_opt', ...
          'L_ledge_opt', 'm_B_opt', 'C_Al2O3_opt', 'C_AlF3_opt', 'C_CaF2_opt', 'C_LiF_opt', ...
-         'P_input_opt', 'Y_Al_opt', 'T_liq_opt', 'Superheat_opt', 'g_opt', 'Z_I_g_opt', ...
-         'Z_C_Al2O3_m_opt', 'Z_C_AlF3_m_opt', 'Z_C_CaF2_m_opt', 'Z_C_LiF_m_opt', ...
-         'Z_Lledge_superheat_opt', ...
+         'P_input_opt', 'Y_Al_opt', 'T_liq_opt', 'Superheat_opt', 'g_opt', ...
          'lamda_up_opt', 'lamda_down_opt', 'lamda_keep_opt', ...
          'elec_cost', 'Al2O3_cost', 'Al_revenue', 'total_cost');
     
@@ -366,7 +245,7 @@ if result.problem == 0
     time_state = (1:T) * delta_t; % 1小时间隔的时间点
     
     % 第一张图：电价、电流、功率、氧化铝进料、电流效率、产量
-    figure('Name', 'McCormick包络优化结果 - 控制变量和输出变量', 'Position', [100, 100, 1200, 800]);
+    figure('Name', '双线性优化结果 - 控制变量和输出变量', 'Position', [100, 100, 1200, 800]);
     
     % 电价曲线
     subplot(3,2,1);
@@ -431,7 +310,7 @@ if result.problem == 0
     grid on;
     
     % 第二张图：电解质温度、液相温度、过热度、氧化铝浓度、氧化铝质量、浴液质量、ledge厚度
-    figure('Name', 'McCormick包络优化结果 - 状态变量', 'Position', [100, 100, 1400, 1000]);
+    figure('Name', '双线性优化结果 - 状态变量', 'Position', [100, 100, 1400, 1000]);
     
     % 电解质温度曲线
     subplot(3,2,1);
@@ -509,7 +388,7 @@ if result.problem == 0
     title('Ledge厚度变化（每小时更新）');
     grid on;
     
-    fprintf('McCormick包络优化模型求解完成！\n');
+    fprintf('双线性优化模型求解完成！\n');
     
 else
     fprintf('优化求解失败，错误代码：%d\n', result.problem);

@@ -28,7 +28,7 @@ end
 %% 参数定义
 % 注意：本模型所有温度变量均使用摄氏度（°C）
 % 热阻单位为K/W，但由于温度差在°C和K中数值相同，计算不受影响
-T = 5;                     % 总模拟时长：24小时
+T = 24;                     % 总模拟时长：24小时
 delta_t = 1;              % 时间步长，分钟
 N = T * 60/ delta_t;     % 步数
 
@@ -135,8 +135,8 @@ m_LiF_init = C_LiF_init*m_B_init;
 
 %% 加载优化结果作为输入
 % 尝试从优化结果文件加载电流和氧化铝进料速率
-if exist('electrolysis_optimization_results.mat', 'file')
-    load('electrolysis_optimization_results.mat');
+if exist('electrolysis_bilinear_optimization_results.mat', 'file')
+    load('electrolysis_bilinear_optimization_results.mat');
     fprintf('已加载优化结果文件\n');
     
     % 检查优化结果的时间长度
@@ -375,7 +375,7 @@ title('电流效率随时间变化');
 grid on;
 
 % 如果使用了优化结果，添加对比图
-if exist('electrolysis_optimization_results.mat', 'file') && exist('I_opt', 'var')
+if exist('electrolysis_bilinear_optimization_results.mat', 'file') && exist('I_opt', 'var')
     figure('Name', '优化结果与仿真结果对比', 'Position', [100, 100, 1200, 800]);
     
      % 电流对比
