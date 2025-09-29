@@ -135,8 +135,8 @@ m_LiF_init = C_LiF_init*m_B_init;
 
 %% 加载优化结果作为输入
 % 尝试从优化结果文件加载电流和氧化铝进料速率
-if exist('electrolysis_optimization_results.mat', 'file')
-    load('electrolysis_optimization_results.mat');
+if exist('electrolysis_bilinear_optimization_results.mat', 'file')
+    load('electrolysis_bilinear_optimization_results.mat');
     fprintf('已加载优化结果文件\n');
     
     % 检查优化结果的时间长度

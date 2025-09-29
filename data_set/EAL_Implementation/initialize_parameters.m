@@ -115,8 +115,16 @@ R_up = 0.2;                 % 功率上爬坡速率
 R_down = 0.2;               % 功率下爬坡速率
 N_rel = 10;                 % 最大调节次数
 
-m_feed_Al2O3_min = 3;       % 最小进料速率 (kg/min)
-m_feed_Al2O3_max = 8;       % 最大进料速率 (kg/min)
+m_feed_Al2O3_min = 4;       % 最小进料速率 (kg/min)
+m_feed_Al2O3_max = 6;       % 最大进料速率 (kg/min)
+
+%% 产量约束参数
+g_N = 0.94;                 % 额定电流效率
+Y_N = 3600*1e3 * (I_N * g_N * M_Al) / (F*z); % 额定产量 (kg/h)
+Y_total_min_ratio = 0.9;   % 总产量最小比例（相对于额定产量）
+Y_total_max_ratio = 1.1;   % 总产量最大比例（相对于额定产量）
+Y_total_min = Y_N * T * Y_total_min_ratio; % 24小时最小总产量 (kg)
+Y_total_max = Y_N * T * Y_total_max_ratio; % 24小时最大总产量 (kg)
 
 %% McCormick包络参数
 % 分段McCormick包络参数
