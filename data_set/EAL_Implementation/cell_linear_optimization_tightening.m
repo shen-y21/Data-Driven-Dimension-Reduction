@@ -1188,7 +1188,7 @@ function [constraints, variables, obj] = build_optimization_problem(...
     % 初始条件
     constraints = [constraints, variables.I(1) == params.I_N];
     constraints = [constraints, variables.T_B(1) == params.T_B_init];
-    constraints = [constraints, variables.T_B(params.T) == params.T_B_init];
+    % constraints = [constraints, variables.T_B(params.T) == params.T_B_init];
     constraints = [constraints, variables.L_ledge(1) == params.L_ledge_init];
     constraints = [constraints, variables.m_B(1) == params.m_B_init];
     constraints = [constraints, variables.C_Al2O3(1) == params.C_Al2O3_init];
