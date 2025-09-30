@@ -1,4 +1,5 @@
 %% Plot the optimal load curve under the identified parameters and the results based on the original constraints given the electricity price.
+clear; clear clc; close all
 % plot Fig. 2
 
 % Select the steel powder factory
@@ -8,10 +9,10 @@ data_set_name = "eal";
 load("../data_set/dataset_" + data_set_name + ".mat");
 
 % Day July 23
-idx_day = 23 - 21;
+idx_day = 2;
 
 % Select the real energy consumption data in the test set (since there is no model selection part, we use cv as the test set)
-e_true = E_primal_days_cv(:, idx_day)*280;
+e_true = E_primal_days_cv(:, idx_day);
 
 % Results of the SAL trained model
 load("../results/data_rc_" + data_set_name + "_SALs.mat", "E_reduced_constraints");
@@ -54,7 +55,7 @@ set(gcf, 'Units', figureUnits, 'Position', [10 10 figureWidth figureHeight]);
 % Axis properties
 ax = gca;
 ax.XLim = [0, 25];     
-ax.YLim = [0, 1000];     
+ax.YLim = [0, 300];     
   
 % Font size
 ax.FontSize = 13.5;
@@ -66,4 +67,4 @@ ax.XTickLabelRotation = 0;  % 设置x轴标签水平显示
 ax.FontName = 'Times New Roman';
 set(gcf, 'PaperSize', [18, 8]);
 
-saveas(gcf,'typical_load_eal.pdf');
+saveas(gcf,'typical_load_steelpowder.pdf');

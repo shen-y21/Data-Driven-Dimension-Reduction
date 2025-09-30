@@ -1,6 +1,6 @@
 %% Calculate the optimal energy consumption results on the test set using the identified parameters for the ALF model.
 
-for data_set_name = ["cement", "steelpowder", "steelmaking", "eal"]
+for data_set_name = ["cement", "steelpowder", "steelmaking"]
 
     % Load data: prices and electricity meter data for past time periods
     if strcmp(data_set_name, "eal")

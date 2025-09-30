@@ -1,6 +1,30 @@
 %% 基于虚拟储能模型的逆优化
 % 拟合虚拟储能模型参数，基于电表数据求解最优参数
 
+%% 电解铝相关参数定义
+% 电化学参数
+F = 96485;                  % 法拉第常数
+z = 3;                      % 电子转移数
+M_Al = 26.98 / 1000;       % 铝摩尔质量 (kg/mol)
+g_N = 0.94;                 % 额定电流效率
+EMF = 2.16;                 % 反电动势 (V)
+R_cell = 3.58e-6;           % 槽电阻 (Ω)
+I_N = 500;                  % 额定电流 (kA)
+P_N = (EMF + R_cell*I_N*1000)*I_N;  % 额定功率 (kW)
+
+% 价格参数
+if ~exist('price_AL', 'var')
+    price_AL = 19;          % 铝现货价格（元/kg）
+end
+
+% 计算收益系数
+dP_dI_N = EMF + 2*R_cell*I_N*1000;  % 功率对电流的导数在额定点的值
+Y_Al_coeff = 3600*1e3 * g_N * M_Al / (F*z);  % 产量系数
+Y_Al_offset = Y_Al_coeff * (I_N - P_N / dP_dI_N);  % 产量偏移项
+Y_Al_slope = Y_Al_coeff / dP_dI_N * 1000/280;  % 产量对功率的斜率
+Revenue_coeff = Y_Al_slope * price_AL * delta_t;  % 收益系数
+Revenue_offset = Y_Al_offset * price_AL * delta_t;  % 收益偏移项
+
 %% 约束条件
 Constraints = [];
 
@@ -8,14 +32,17 @@ Constraints = [];
 
 % 1. 平稳性条件 (Stationarity)
 % 对功率变量 p_t 的梯度
+% 修正后的电价系数：price_e_corrected = price_e - Revenue_coeff
+price_e_corrected = price_e - Revenue_coeff;
+
 for t = 1:NOFINTERVALS
     for n = 1:BATCH_SIZE
-        % 目标函数对 p_t 的偏导数: price_e(t,n) + lambda_t(t,n) - lambda_t(t+1,n)*theta
+        % 目标函数对 p_t 的偏导数: price_e_corrected(t,n) + lambda_t(t,n) - lambda_t(t+1,n)*theta
         if t < NOFINTERVALS
-            Constraints = [Constraints, price_e(t,n) + lambda_t(t,n) - lambda_t(t+1,n)*theta - mu_p_min_t(t,n) + mu_p_max_t(t,n) == 0];
+            Constraints = [Constraints, price_e_corrected(t,n) + lambda_t(t,n) - lambda_t(t+1,n)*theta - mu_p_min_t(t,n) + mu_p_max_t(t,n) == 0];
         else
             % 最后一个时间步
-            Constraints = [Constraints, price_e(t,n) + lambda_t(t,n) - mu_p_min_t(t,n) + mu_p_max_t(t,n) == 0];
+            Constraints = [Constraints, price_e_corrected(t,n) + lambda_t(t,n) - mu_p_min_t(t,n) + mu_p_max_t(t,n) == 0];
         end
     end
 end

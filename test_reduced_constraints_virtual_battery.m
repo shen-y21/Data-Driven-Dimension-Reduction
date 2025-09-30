@@ -11,6 +11,7 @@ load("data_set/EAL_Implementation/dataset_eal.mat");
 
 % 将单个电解槽数据乘以280倍（总共有280个电解槽）
 E_primal_days_cv = E_primal_days_cv * 280;
+E_primal_days_train = E_primal_days_train * 280;
 
 % 时间间隔设置
 NOFINTERVALS = 24;

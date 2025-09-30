@@ -241,7 +241,7 @@ Cost_elec = sum(P .* price_TOU') * delta_t;
 % 氧化铝用料成本
 Cost_Al2O3 = sum(m_feed_Al2O3 .* price_Al2O3) * delta_t;
 
-% 产品收益（使用McCormick包络变量）
+% 产品收益
 Revenue_Al = sum(Y_Al .* price_AL) * delta_t;
 
 % 总目标函数（最小化成本）
@@ -352,33 +352,33 @@ if result.problem == 0
     % 电价曲线
     subplot(3,2,1);
     stairs(time_hr, price_TOU, 'r-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('电价 (元/kWh)');
-    title('分时电价曲线');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('电价 (元/kWh)', 'FontSize', 14);
+    title('分时电价曲线', 'FontSize', 14);
     grid on;
     
     % 电流曲线
     subplot(3,2,2);
     stairs(time_hr, I_opt, 'b-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('电流 (kA)');
-    title('优化电流曲线（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('电流 (kA)', 'FontSize', 14);
+    title('优化电流曲线', 'FontSize', 14);
     grid on;
     
     % 功率曲线
     subplot(3,2,3);
     stairs(time_hr, P_input_opt, 'g-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('功率 (kW)');
-    title('优化功率曲线（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('功率 (kW)', 'FontSize', 14);
+    title('优化功率曲线', 'FontSize', 14);
     grid on;
     
     % 氧化铝进料曲线
     subplot(3,2,4);
     stairs(time_hr, m_feed_Al2O3_opt, 'm-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('氧化铝进料速率 (kg/min)');
-    title('氧化铝进料优化曲线（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('氧化铝进料速率 (kg/min)', 'FontSize', 14);
+    title('氧化铝进料优化曲线', 'FontSize', 14);
     grid on;
     
     % 电流效率曲线（简化模型 vs 复杂模型）
@@ -395,10 +395,10 @@ if result.problem == 0
     plot(time_state, g_opt, 'c-', 'LineWidth', 2, 'DisplayName', '简化模型');
     hold on;
     plot(time_state, g_real, 'r--', 'LineWidth', 2, 'DisplayName', '复杂模型');
-    xlabel('时间 (h)');
-    ylabel('电流效率');
-    title('电流效率变化对比（每小时更新）');
-    legend('show', 'Location', 'best');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('电流效率', 'FontSize', 14);
+    title('电流效率变化对比', 'FontSize', 14);
+    legend('show', 'Location', 'best', 'FontSize', 12);
     grid on;
     ylim([0.85, 0.98]);
     hold off;
@@ -406,9 +406,9 @@ if result.problem == 0
     % 铝产量曲线
     subplot(3,2,6);
     plot(time_state, Y_Al_opt, 'k-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('铝产量 (kg/h)');
-    title('铝产量曲线（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('铝产量 (kg/h)', 'FontSize', 14);
+    title('铝产量曲线', 'FontSize', 14);
     grid on;
     
     % 第二张图：电解质温度、液相温度、过热度、氧化铝浓度、氧化铝质量、浴液质量、ledge厚度
@@ -417,9 +417,9 @@ if result.problem == 0
     % 电解质温度曲线
     subplot(3,2,1);
     plot(time_state, T_B_opt(1:end-1), 'r-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('电解质温度 (°C)');
-    title('电解质温度变化（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('电解质温度 (°C)', 'FontSize', 14);
+    title('电解质温度变化', 'FontSize', 14);
     grid on;
     
     % 液相温度曲线（简化模型 vs 复杂模型）
@@ -445,19 +445,19 @@ if result.problem == 0
     plot(time_state, T_liq_opt, 'b-', 'LineWidth', 2, 'DisplayName', '简化模型');
     hold on;
     plot(time_state, T_liq_real, 'r--', 'LineWidth', 2, 'DisplayName', '复杂模型');
-    xlabel('时间 (h)');
-    ylabel('液相温度 (°C)');
-    title('液相温度变化对比（每小时更新）');
-    legend('show', 'Location', 'best');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('液相温度 (°C)', 'FontSize', 14);
+    title('液相温度变化对比', 'FontSize', 14);
+    legend('show', 'Location', 'best', 'FontSize', 12);
     grid on;
     hold off;
     
     % 过热度曲线
     subplot(3,2,3);
     plot(time_state, Superheat_opt, 'g-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('过热度 (°C)');
-    title('过热度变化（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('过热度 (°C)', 'FontSize', 14);
+    title('过热度变化', 'FontSize', 14);
     grid on;
     
     % 各组分浓度变化曲线
@@ -467,27 +467,27 @@ if result.problem == 0
     plot(time_state, AlF3_conc, 'r-', 'LineWidth', 2, 'DisplayName', 'AlF3');
     plot(time_state, CaF2_conc, 'g-', 'LineWidth', 2, 'DisplayName', 'CaF2');
     plot(time_state, LiF_conc, 'b-', 'LineWidth', 2, 'DisplayName', 'LiF');
-    xlabel('时间 (h)');
-    ylabel('浓度 (wt%)');
-    title('各组分浓度变化（每小时更新）');
-    legend('show', 'Location', 'best');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('浓度 (wt%)', 'FontSize', 14);
+    title('各组分浓度变化', 'FontSize', 14);
+    legend('show', 'Location', 'best', 'FontSize', 12);
     grid on;
     hold off;
     
     % 浴液质量曲线
     subplot(3,2,5);
     plot(time_state, m_B_opt(1:end-1), 'c-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('浴液质量 (kg)');
-    title('浴液质量变化（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('浴液质量 (kg)', 'FontSize', 14);
+    title('浴液质量变化', 'FontSize', 14);
     grid on;
     
     % Ledge厚度曲线
     subplot(3,2,6);
     plot(time_state, L_ledge_opt(1:end-1), 'k-', 'LineWidth', 2);
-    xlabel('时间 (h)');
-    ylabel('Ledge厚度 (m)');
-    title('Ledge厚度变化（每小时更新）');
+    xlabel('时间 (h)', 'FontSize', 14);
+    ylabel('Ledge厚度 (m)', 'FontSize', 14);
+    title('Ledge厚度变化', 'FontSize', 14);
     grid on;
     
     fprintf('McCormick包络优化模型求解完成！\n');
