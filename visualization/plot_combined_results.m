@@ -17,7 +17,7 @@ for data_idx = 1:length(data_set_names)
     avg_times = zeros(length(NOFMODELS_range), length(BATCH_SIZE_range));
     for m = NOFMODELS_range
         for b = BATCH_SIZE_range
-            filename = "results/data_" + data_set_names(data_idx) + m + "ALs_" + b + "batch.mat";
+            filename = "../results/data_" + data_set_names(data_idx) + m + "ALs_" + b + "batch.mat";
             load(filename);
             avg_times(m,b) = sum(result.time);
         end
@@ -45,11 +45,11 @@ hold on;
 % 绘制误差曲面
 for data_idx = 1:length(data_set_names)
     errors = zeros(length(NOFMODELS_range), length(BATCH_SIZE_range));
-    load("data_set/dataset_" + data_set_names(data_idx) + ".mat");
+    load("../data_set/dataset_" + data_set_names(data_idx) + ".mat");
     
     for m = NOFMODELS_range
         for b = BATCH_SIZE_range
-            filename = "results/data_rc_" + data_set_names(data_idx) + m + "ALs.mat";
+            filename = "../results/data_rc_" + data_set_names(data_idx) + m + "ALs.mat";
             load(filename, "E_reduced_constraints");
             mse = mean(mean(abs(E_reduced_constraints - E_primal_days_cv).^2));
             nrmse = sqrt(mse) / max(E_primal_days_cv(:, 1));

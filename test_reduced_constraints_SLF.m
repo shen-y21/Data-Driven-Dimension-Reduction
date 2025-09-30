@@ -1,11 +1,18 @@
 %% Calculate the optimal energy consumption results on the test set using a simple model (SAL).
 
-data_set_names = ["cement", "steelpowder", "steelmaking"];
-for name_idx = 1:3
+data_set_names = ["cement", "steelpowder", "steelmaking", "eal"];
+for name_idx = 1:4
 
     data_set_name = data_set_names(name_idx);
     % Load data: prices and electricity meter data for past time periods
-    load("data_set/dataset_" + data_set_name + ".mat");
+    if strcmp(data_set_name, "eal")
+        load("data_set/EAL_Implementation/dataset_" + data_set_name + ".mat");
+        % 电解铝数据需要乘以280倍（总共有280个电解槽）
+        E_primal_days_cv = E_primal_days_cv * 280;
+        E_primal_days_train = E_primal_days_train * 280;
+    else
+        load("data_set/dataset_" + data_set_name + ".mat");
+    end
 
     % Input: electricity prices, problem parameters (already input in the upper-level function)
     % Output: optimal energy consumption

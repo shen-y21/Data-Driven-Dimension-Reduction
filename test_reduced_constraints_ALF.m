@@ -1,9 +1,16 @@
 %% Calculate the optimal energy consumption results on the test set using the identified parameters for the ALF model.
 
-for data_set_name = ["cement", "steelpowder", "steelmaking"]
+for data_set_name = ["cement", "steelpowder", "steelmaking", "eal"]
 
     % Load data: prices and electricity meter data for past time periods
-    load("data_set/dataset_" + data_set_name + ".mat");
+    if strcmp(data_set_name, "eal")
+        load("data_set/EAL_Implementation/dataset_" + data_set_name + ".mat");
+        % 电解铝数据需要乘以280倍（总共有280个电解槽）
+        E_primal_days_cv = E_primal_days_cv * 280;
+        E_primal_days_train = E_primal_days_train * 280;
+    else
+        load("data_set/dataset_" + data_set_name + ".mat");
+    end
 
     % Generate bidding results using the fitted model
 

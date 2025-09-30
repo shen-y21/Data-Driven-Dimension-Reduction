@@ -18,13 +18,13 @@ for data_idx = 1:length(data_set_names)
     errors = zeros(length(NOFMODELS_range), length(BATCH_SIZE_range));
     
     % 加载数据集
-    load("data_set/dataset_" + data_set_names(data_idx) + ".mat");
+    load("../data_set/dataset_" + data_set_names(data_idx) + ".mat");
     
     % 计算不同配置下的误差
     for m = NOFMODELS_range
         for b = BATCH_SIZE_range
             % 加载训练结果
-            filename = "results/data_rc_" + data_set_names(data_idx) + m + "ALs.mat";
+            filename = "../results/data_rc_" + data_set_names(data_idx) + m + "ALs.mat";
             load(filename, "E_reduced_constraints");
             
             % 计算NRMSE
